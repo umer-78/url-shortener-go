@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>URL Shortener</title>
+<style>
+:root { color-scheme: light dark; --bg:#f6f7f9; --card:#fff; --text:#16181d; --muted:#5d6573; --line:#dde1e8; --accent:#0d9488; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0e1116; --card:#161a21; --text:#e8eaee; --muted:#9aa3b2; --line:#2a303b; --accent:#2dd4bf; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+.wrap { max-width:720px; margin:0 auto; padding:32px 16px 48px; }
+h1 { font-size:22px; margin:0 0 4px; }
+p.lead { color:var(--muted); margin:0 0 20px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; }
+form { display:flex; gap:8px; flex-wrap:wrap; }
+input { flex:1 1 260px; min-width:0; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:transparent; color:inherit; font:inherit; }
+input#code { flex:0 1 150px; }
+button { padding:10px 16px; border-radius:9px; border:0; background:var(--accent); color:#04201d; font:inherit; font-weight:650; cursor:pointer; }
+#result { margin-top:14px; font-size:15px; }
+#result a { color:var(--accent); font-weight:650; }
+.error { color:#dc2626; }
+table { width:100%; border-collapse:collapse; margin-top:22px; font-size:14px; }
+th,td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); }
+th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+td.target { max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+footer { margin-top:28px; color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>URL Shortener</h1>
+  <p class="lead">Paste a link, get a short one. Optional custom code and expiry.</p>
+  <div class="card">
+    <form id="form">
+      <input id="url" type="url" placeholder="https://example.com/a/very/long/link" required>
+      <input id="code" placeholder="custom code (optional)">
+      <button type="submit">Shorten</button>
+    </form>
+    <div id="result"></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Short link</th><th>Target</th><th>Visits</th></tr></thead>
+    <tbody id="rows">
+      {{range .Links}}
+      <tr>
+        <td><a href="/{{.code}}">{{.code}}</a></td>
+        <td class="target"><a href="{{.target}}" rel="noreferrer nofollow">{{.target}}</a></td>
+        <td>{{.visits}}</td>
+      </tr>
+      {{else}}
+      <tr><td colspan="3">No links yet.</td></tr>
+      {{end}}
+    </tbody>
+  </table>
+  <footer>Ten most recent links. <a href="/health">health</a> · <a href="/api/stats">stats</a></footer>
+</div>
+<script>
+const form = document.getElementById('form');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const result = document.getElementById('result');
+  result.textContent = 'Shortening…';
+  try {
+    const res = await fetch('/api/links', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url: document.getElementById('url').value, code: document.getElementById('code').value || undefined }),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || 'Something went wrong');
+    result.innerHTML = `<a href="${body.short_url}">${body.short_url}</a> → ${body.target}`;
+    setTimeout(() => location.reload(), 900);
+  } catch (err) {
+    result.innerHTML = `<span class="error">${err.message}</span>`;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+      - name: Formatting
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+      - run: go vet ./...
+      - run: go test -race -cover ./...
+      - run: go build ./...
+      - name: Run it and shorten a link
+        run: |
+          go run ./cmd/shortener -addr 127.0.0.1:8080 -db /tmp/ci.db &
+          for i in $(seq 1 30); do curl -sf localhost:8080/health && break || sleep 1; done
+          CODE=$(curl -sf -X POST localhost:8080/api/links -H 'content-type: application/json' \
+            -d '{"url":"https://example.com/ci"}' | sed -n 's/.*"code":"\([^"]*\)".*/\1/p')
+          test -n "$CODE"
+          curl -s -o /dev/null -w '%{http_code}' "localhost:8080/$CODE" | grep -q 302
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t url-shortener:ci .
