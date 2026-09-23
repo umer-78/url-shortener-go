@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>URL Shortener — Interactive Demo</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --surface-2: #eef0f4; --border: #dde1e8;
+  --text: #16181d; --muted: #5d6573; --accent: #2563eb; --accent-ink: #ffffff;
+  --good: #15803d; --bad: #b91c1c; --radius: 12px;
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 4px 16px rgb(16 24 40 / 0.05);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1116; --surface: #161a21; --surface-2: #1d222b; --border: #2a303b;
+    --text: #e8eaee; --muted: #9aa3b2; --accent: #60a5fa; --accent-ink: #0b1220;
+    --good: #4ade80; --bad: #f87171; --shadow: none; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+a { color: var(--accent); }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+header h1 { margin: 0; font-size: 1.7rem; letter-spacing: -0.02em; }
+header p { margin: 4px 0 0; color: var(--muted); max-width: 640px; }
+.gh { font-weight: 600; text-decoration: none; border: 1px solid var(--border); background: var(--surface); padding: 8px 14px; border-radius: var(--radius); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; margin-top: 16px; }
+.card h2 { margin: 0 0 12px; font-size: 1.05rem; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+.row > div { flex: 1; min-width: 140px; }
+label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
+input, select, button { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; width: 100%; }
+button { background: var(--accent); color: var(--accent-ink); border: none; cursor: pointer; font-weight: 600; width: auto; }
+button:hover { filter: brightness(1.08); }
+button.ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+button.danger { background: color-mix(in srgb, var(--bad) 12%, var(--surface)); color: var(--bad); border: 1px solid color-mix(in srgb, var(--bad) 40%, var(--border)); }
+.msg { margin-top: 10px; padding: 9px 12px; border-radius: 8px; font-size: 0.9rem; display: none; }
+.msg.err { display: block; background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); border: 1px solid color-mix(in srgb, var(--bad) 35%, transparent); }
+.msg.ok { display: block; background: color-mix(in srgb, var(--good) 12%, transparent); color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 35%, transparent); }
+.stats { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
+.stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; min-width: 110px; }
+.stat .n { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; }
+.stat .l { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); word-break: break-all; }
+th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.code { font-family: var(--mono); font-weight: 700; color: var(--accent); }
+.visits { font-family: var(--mono); }
+.hint { font-size: 0.82rem; color: var(--muted); margin-top: 6px; }
+pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: var(--mono); font-size: 0.8rem; overflow: auto; white-space: pre-wrap; margin: 10px 0 0; }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+footer { margin-top: 32px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+footer a { color: var(--muted); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 640px) { th:nth-child(4), td:nth-child(4) { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>URL Shortener</h1>
+    <p>Go service with JSON API, 302 redirects, visit counting, custom codes and expiring links. Codes avoid look-alikes (no <code>0/O</code>, <code>1/l/I</code>) so they survive being read aloud.</p>
+  </div>
+  <a class="gh" href="https://github.com/umer-78/url-shortener-go" rel="noopener">View on GitHub</a>
+</header>
+
+<main>
+<section class="card" aria-label="Create a link">
+  <h2>Create a link — <code>POST /api/links</code></h2>
+  <div class="row">
+    <div style="flex:3">
+      <label for="url">Target URL</label>
+      <input id="url" type="url" placeholder="https://github.com/umer-78" value="https://github.com/umer-78">
+    </div>
+    <div>
+      <label for="code">Custom code <span style="opacity:.6">(optional)</span></label>
+      <input id="code" placeholder="auto-generate" maxlength="32">
+    </div>
+    <div>
+      <label for="ttl">Expires in</label>
+      <select id="ttl">
+        <option value="">never</option>
+        <option value="1h">1 hour</option>
+        <option value="24h">24 hours</option>
+        <option value="168h">7 days</option>
+        <option value="720h">30 days</option>
+      </select>
+    </div>
+    <button id="btnCreate" type="button">Shorten</button>
+  </div>
+  <div class="msg" id="createMsg" role="status"></div>
+  <pre id="apiOut" hidden></pre>
+  <p class="hint">Validation mirrors the Go handlers: <code>422</code> bad URL / bad code / bad duration, <code>409</code> code taken, <code>404</code> unknown code, <code>410</code> expired.</p>
+</section>
+
+<section class="card" aria-label="Links">
+  <h2>Links — <code>GET /api/links</code></h2>
+  <div class="stats" id="stats"></div>
+  <div style="overflow-x:auto">
+    <table id="linksTable">
+      <caption class="sr">Shortened links</caption>
+      <thead><tr><th>Code</th><th>Target</th><th>Visits</th><th>Expires</th><th>Actions</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="hint" id="emptyHint">No links yet — create one above. Simulated hits use 302 (never 301), so the counter always sees the visit.</p>
+</section>
+</main>
+
+<footer>
+  <p>13 tests passing · <a href="https://github.com/umer-78">github.com/umer-78</a></p>
+</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+
+  // Base62 minus look-alikes: no 0/O, 1/l/I — same alphabet as store.go
+  const ALPHABET = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
+  const RESERVED = new Set(["api", "health", "static", "admin", "stats"]);
+  const CODE_RE = /^[A-Za-z0-9_-]{3,32}$/;
+
+  let links = []; // { code, target, created_at, expires_at, visits, last_visit }
+
+  function normaliseURL(raw) {
+    raw = (raw || "").trim();
+    if (!raw) throw new Error("url must be http or https and have a host");
+    if (!raw.includes("://")) raw = "https://" + raw;
+    let u;
+    try { u = new URL(raw); } catch { throw new Error("url must be http or https and have a host"); }
+    if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error("url must be http or https and have a host");
+    if (!u.hostname || !u.hostname.includes(".")) throw new Error("url must be http or https and have a host");
+    u.hostname = u.hostname.toLowerCase();
+    return u.toString();
+  }
+
+  // crypto.getRandomValues — codes must not be guessable
+  function newCode(length) {
+    const out = [];
+    const max = ALPHABET.length;
+    const buf = new Uint32Array(length);
+    crypto.getRandomValues(buf);
+    for (let i = 0; i < length; i++) out.push(ALPHABET[buf[i] % max]);
+    return out.join("");
+  }
+
+  function parseDuration(s) {
+    if (!s) return 0;
+    const m = /^(\d+)(ms|s|m|h|d)$/.exec(s);
+    if (!m) return null;
+    const n = Number(m[1]);
+    const unit = m[2];
+    const mult = { ms: 1, s: 1000, m: 60000, h: 3600000, d: 86400000 }[unit];
+    return n * mult;
+  }
+
+  function create(target, code, ttlStr) {
+    const normalised = normaliseURL(target);
+    let ttl = 0;
+    if (ttlStr) {
+      ttl = parseDuration(ttlStr);
+      if (ttl === null || ttl <= 0) throw { status: 422, message: "expires_in must be a duration like 24h" };
+    }
+    if (code != null && code !== "") {
+      if (!CODE_RE.test(code) || RESERVED.has(code.toLowerCase())) {
+        throw { status: 422, message: "a custom code must be 3-32 characters of letters, digits, - or _" };
+      }
+      if (links.some(l => l.code === code)) throw { status: 409, message: "that code is already in use" };
+    } else {
+      // grow length under pressure rather than looping forever
+      let generated = "";
+      for (let attempt = 0; attempt < 12; attempt++) {
+        generated = newCode(6 + Math.floor(attempt / 4));
+        if (!links.some(l => l.code === generated)) break;
+        generated = "";
+      }
+      if (!generated) throw { status: 500, message: "could not find a free code" };
+      code = generated;
+    }
+    const now = new Date();
+    const link = {
+      code,
+      target: normalised,
+      created_at: now,
+      expires_at: ttl ? new Date(now.getTime() + ttl) : null,
+      visits: 0,
+      last_visit: null
+    };
+    links.unshift(link);
+    return link;
+  }
+
+  function resolve(code) {
+    const link = links.find(l => l.code === code);
+    if (!link) throw { status: 404, message: "no such link" };
+    if (link.expires_at && link.expires_at < new Date()) throw { status: 410, message: "this link has expired" };
+    link.visits++; // one statement: visits = visits + 1
+    link.last_visit = new Date();
+    return link;
+  }
+
+  function deleteLink(code) {
+    const i = links.findIndex(l => l.code === code);
+    if (i < 0) throw { status: 404, message: "no such link" };
+    links.splice(i, 1);
+  }
+
+  function expired(link) { return link.expires_at && link.expires_at < new Date(); }
+
+  function msg(id, text, ok) {
+    const el = $(id);
+    el.textContent = text;
+    el.className = "msg " + (ok ? "ok" : "err");
+    if (ok) setTimeout(() => el.className = "msg", 4000);
+  }
+
+  function render() {
+    const tbody = $("linksTable").querySelector("tbody");
+    tbody.innerHTML = "";
+    $("emptyHint").style.display = links.length ? "none" : "block";
+    const totalVisits = links.reduce((s, l) => s + l.visits, 0);
+    const expiredCount = links.filter(expired).length;
+    $("stats").innerHTML =
+      '<div class="stat"><div class="n">' + links.length + '</div><div class="l">links</div></div>' +
+      '<div class="stat"><div class="n">' + totalVisits + '</div><div class="l">total visits</div></div>' +
+      '<div class="stat"><div class="n">' + expiredCount + '</div><div class="l">expired</div></div>';
+
+    for (const l of links) {
+      const tr = document.createElement("tr");
+      const exp = expired(l);
+      tr.innerHTML =
+        '<td><span class="code">' + esc(l.code) + "</span></td>" +
+        "<td>" + esc(l.target) + (exp ? ' <span style="color:var(--bad);font-size:.75rem">EXPIRED</span>' : "") + "</td>" +
+        '<td class="visits">' + l.visits + (l.last_visit ? '<br><span style="color:var(--muted);font-size:.72rem">' + l.last_visit.toISOString().slice(0, 16).replace("T", " ") + "</span>" : "") + "</td>" +
+        "<td>" + (l.expires_at ? l.expires_at.toISOString().slice(0, 16).replace("T", " ") : "—") + "</td>" +
+        '<td style="white-space:nowrap">' +
+          '<button class="ghost" data-act="visit" data-code="' + esc(l.code) + '" style="padding:4px 9px;font-size:.78rem">302 visit</button> ' +
+          '<button class="ghost" data-act="peek" data-code="' + esc(l.code) + '" style="padding:4px 9px;font-size:.78rem">GET</button> ' +
+          '<button class="danger" data-act="del" data-code="' + esc(l.code) + '" style="padding:4px 9px;font-size:.78rem">DELETE</button>' +
+        "</td>";
+      tbody.appendChild(tr);
+    }
+
+    tbody.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+      const code = b.dataset.code;
+      if (b.dataset.act === "visit") {
+        try {
+          resolve(code);
+          render();
+          msg("createMsg", "302 → " + links.find(l => l.code === code).target + " (visit counted)", true);
+        } catch (e) { msg("createMsg", e.status + ": " + e.message, false); }
+      } else if (b.dataset.act === "peek") {
+        const link = links.find(l => l.code === code);
+        $("apiOut").hidden = false;
+        $("apiOut").textContent = "GET /api/links/" + code + " → 200\n" + JSON.stringify(decorate(link), null, 2);
+      } else if (b.dataset.act === "del") {
+        try {
+          deleteLink(code);
+          render();
+          msg("createMsg", "DELETE /api/links/" + code + " → 204", true);
+        } catch (e) { msg("createMsg", e.status + ": " + e.message, false); }
+      }
+    }));
+  }
+
+  function decorate(l) {
+    return {
+      code: l.code,
+      short_url: "https://s.example.com/" + l.code,
+      target: l.target,
+      created_at: l.created_at.toISOString(),
+      expires_at: l.expires_at ? l.expires_at.toISOString() : undefined,
+      visits: l.visits,
+      last_visit: l.last_visit ? l.last_visit.toISOString() : undefined
+    };
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  $("btnCreate").addEventListener("click", () => {
+    try {
+      const link = create($("url").value, $("code").value.trim(), $("ttl").value);
+      $("apiOut").hidden = false;
+      $("apiOut").textContent = "POST /api/links → 201 Created\n" + JSON.stringify(decorate(link), null, 2);
+      msg("createMsg", "Created /" + link.code + " → " + link.target, true);
+      $("code").value = "";
+      render();
+    } catch (e) {
+      if (e && e.status) {
+        $("apiOut").hidden = false;
+        $("apiOut").textContent = "POST /api/links → " + e.status + "\n" + JSON.stringify({ error: e.message }, null, 2);
+        msg("createMsg", e.status + ": " + e.message, false);
+      } else {
+        msg("createMsg", e.message || String(e), false);
+      }
+    }
+  });
+
+  // seed one link so the table isn't empty on first paint
+  try { create("https://github.com/umer-78/url-shortener-go", "repo", ""); } catch {}
+  render();
+})();
+</script>
+</body>
+</html>
