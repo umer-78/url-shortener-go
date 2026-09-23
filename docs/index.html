@@ -89,12 +89,12 @@ button, .btn {
   transform: translateY(-1px); box-shadow: var(--shadow-sm);
 }
 .btn:active, button:not(.linkish):active { transform: translateY(0) scale(0.98); }
-.btn.primary, button.primary {
+.btn.primary, button.primary, #btnCreate {
   background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 80%, #7c3aed));
   color: #fff; border-color: transparent;
   box-shadow: 0 2px 8px var(--accent-glow), inset 0 1px 0 rgb(255 255 255 / 0.15);
 }
-.btn.primary:hover, button.primary:hover {
+.btn.primary:hover, button.primary:hover, #btnCreate:hover {
   filter: brightness(1.08);
   box-shadow: 0 4px 16px var(--accent-glow), inset 0 1px 0 rgb(255 255 255 / 0.2);
   transform: translateY(-1px);
