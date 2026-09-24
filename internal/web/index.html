@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>URL Shortener</title>
+<meta name="description" content="Shorten long links with optional custom codes and expiry, and track visits.">
 <style>
 :root { color-scheme: light dark; --bg:#f6f7f9; --card:#fff; --text:#16181d; --muted:#5d6573; --line:#dde1e8; --accent:#0d9488; }
 @media (prefers-color-scheme: dark) { :root { --bg:#0e1116; --card:#161a21; --text:#e8eaee; --muted:#9aa3b2; --line:#2a303b; --accent:#2dd4bf; } }
@@ -44,16 +45,16 @@ footer { margin-top:28px; color:var(--muted); font-size:13px; }
 <body>
   <noscript><p style="margin:16px;padding:12px 16px;border-radius:8px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-family:system-ui,sans-serif">This interactive demo requires JavaScript. Please enable it to run the demo in your browser.</p></noscript>
 
-<div class="wrap">
+<main class="wrap">
   <h1>URL Shortener</h1>
   <p class="lead">Paste a link, get a short one. Optional custom code and expiry.</p>
   <div class="card">
     <form id="form">
-      <input id="url" type="url" placeholder="https://example.com/a/very/long/link" required>
-      <input id="code" placeholder="custom code (optional)">
+      <input id="url" type="url" aria-label="Long URL" placeholder="https://example.com/a/very/long/link" required>
+      <input id="code" aria-label="Custom code (optional)" placeholder="custom code (optional)">
       <button type="submit">Shorten</button>
     </form>
-    <div id="result"></div>
+    <div id="result" role="status" aria-live="polite"></div>
   </div>
 
   <table>
@@ -71,7 +72,7 @@ footer { margin-top:28px; color:var(--muted); font-size:13px; }
     </tbody>
   </table>
   <footer>Ten most recent links. <a href="/health">health</a> · <a href="/api/stats">stats</a></footer>
-</div>
+</main>
 <script>
 const form = document.getElementById('form');
 form.addEventListener('submit', async (e) => {
@@ -86,10 +87,16 @@ form.addEventListener('submit', async (e) => {
     });
     const body = await res.json();
     if (!res.ok) throw new Error(body.error || 'Something went wrong');
-    result.innerHTML = `<a href="${body.short_url}">${body.short_url}</a> → ${body.target}`;
+    const a = document.createElement('a');
+    a.href = body.short_url;
+    a.textContent = body.short_url;
+    result.replaceChildren(a, document.createTextNode(' → ' + body.target));
     setTimeout(() => location.reload(), 900);
   } catch (err) {
-    result.innerHTML = `<span class="error">${err.message}</span>`;
+    const span = document.createElement('span');
+    span.className = 'error';
+    span.textContent = err.message;
+    result.replaceChildren(span);
   }
 });
 </script>
