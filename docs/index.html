@@ -573,14 +573,14 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
         const N = 900, R = 2.2, pos = new Float32Array(N * 3);
         for (let i = 0; i < N; i++) { const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), a = i * Math.PI * (3 - Math.sqrt(5)); pos.set([Math.cos(a) * r * R, y * R, Math.sin(a) * r * R], i * 3); }
         const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-        const globe = new THREE.Points(g, new THREE.PointsMaterial({ color: accent, size: 0.045, transparent: true, opacity: 0.8 }));
+        const globe = new THREE.Points(g, new THREE.PointsMaterial({ color: accent, size: 0.065, transparent: true, opacity: 0.95 }));
         root.add(globe);
         const pick = () => { const i = Math.floor(Math.random() * N); return new THREE.Vector3(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]); };
         for (let k = 0; k < 7; k++) {
           const a = pick(), b = pick(), mid = a.clone().add(b).multiplyScalar(0.5).setLength(R * 1.45);
           const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
-          globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(40)), new THREE.LineBasicMaterial({ color: second, transparent: true, opacity: 0.5 })));
-          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshBasicMaterial({ color: warm })); globe.add(dot);
+          globe.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(40)), new THREE.LineBasicMaterial({ color: second, transparent: true, opacity: 0.75 })));
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 10), new THREE.MeshBasicMaterial({ color: warm })); globe.add(dot);
           tick.push((t) => dot.position.copy(curve.getPoint(((t * 0.25) + k / 7) % 1)));
         }
         tick.push((t) => { globe.rotation.y = t * 0.12; globe.rotation.x = 0.35; });
