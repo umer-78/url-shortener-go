@@ -3,6 +3,8 @@
 **Live demo:** https://umer-78.github.io/url-shortener-go/
 
 [![CI](https://github.com/umer-78/url-shortener-go/actions/workflows/ci.yml/badge.svg)](https://github.com/umer-78/url-shortener-go/actions/workflows/ci.yml)
+
+[![URL Shortener: the live demo](.github/preview.jpg)](https://umer-78.github.io/url-shortener-go/)
 ![Go](https://img.shields.io/badge/Go-1.25%2B-00add8)
 ![Static binary](https://img.shields.io/badge/binary-static%2C%20no%20cgo-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
