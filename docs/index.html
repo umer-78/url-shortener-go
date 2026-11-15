@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-scene="network" data-fx-compact="">
+<html lang="en" data-scene="shorten" data-fx-compact="" data-look="onest" data-hero="center" data-card="soft" data-motif="plain" data-backdrop="grid">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,8 +10,8 @@
 <meta property="og:url" content="https://umer-78.github.io/url-shortener-go/">
 <meta name="twitter:card" content="summary">
 <meta name="description" content="Go URL shortener with JSON API, visit counting, custom codes and expiry — interactive demo.">
-<meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#167e96" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#041216" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232563eb'/><stop offset='1' stop-color='%237c3aed'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'>U</text></svg>">
 <style>
 :root {
@@ -233,7 +233,7 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
 <script>(function(){try{if(!(matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){var r=document.documentElement;r.classList.add('mk-pre');setTimeout(function(){r.classList.remove('mk-pre')},2200)}}catch(e){}})();</script>
 <!-- /motion-kit:head -->
 <!-- fx:v2 -->
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" id="fx-fonts">
 <link rel="stylesheet" href="fx.css">
 <style>:root { --fx-2: #06b6d4; --fx-3: #f59e0b; }</style>
 <!-- /fx:v2 -->
@@ -247,6 +247,11 @@ html.mk-pre header.top, html.mk-pre main section, html.mk-pre section.card, html
 <meta property="og:image:alt" content="URL Shortener — Interactive Demo: the live demo">
 <meta name="twitter:card" content="summary_large_image">
 <!-- /og -->
+<style id="fx-look">:root[data-look] { --font: 'Onest', system-ui, -apple-system, "Segoe UI", sans-serif; --fx-display: 'Onest', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --fx-display-weight: 800; --fx-tracking: -0.035em; --fx-title-case: none; --fx-radius: 2px; --fx-hero-radius: 12px; --fx-control-radius: 4px; --accent: #167e96; --accent-hover: #006c82; --accent-soft: #def7ff; --accent-glow: rgb(22 126 150 / 0.16); --on-accent: #ffffff; --fx-2: #c36d12; --fx-3: #c77bde; --bg: #f1fbfe; --bg-elevated: #fbfeff; --surface: #fdfeff; --surface-2: #eaf6fa; --surface-3: #e0eef2; --border: #d2e1e6; --border-strong: #b7c8cd; --line: #d2e1e6; }
+@media (prefers-color-scheme: dark) { :root[data-look]:not([data-theme="light"]) { --accent: #0eabcc; --accent-hover: #18bfe3; --accent-soft: rgb(14 171 204 / 0.14); --accent-glow: rgb(14 171 204 / 0.2); --on-accent: #01151a; --fx-2: #f2994c; --fx-3: #e3a0f8; --bg: #041216; --bg-elevated: #0a181d; --surface: #0c1c21; --surface-2: #142429; --surface-3: #1d2e33; --border: #253337; --border-strong: #37454a; --line: #253337; } }
+:root[data-look][data-theme="dark"] { --accent: #0eabcc; --accent-hover: #18bfe3; --accent-soft: rgb(14 171 204 / 0.14); --accent-glow: rgb(14 171 204 / 0.2); --on-accent: #01151a; --fx-2: #f2994c; --fx-3: #e3a0f8; --bg: #041216; --bg-elevated: #0a181d; --surface: #0c1c21; --surface-2: #142429; --surface-3: #1d2e33; --border: #253337; --border-strong: #37454a; --line: #253337; }</style>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js" data-fx>
+<link rel="modulepreload" href="fx3d.js" data-fx>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
